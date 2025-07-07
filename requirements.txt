@@ -1,0 +1,5 @@
+httpx[socks]
+rich
+requests
+pyfiglet
+colorama
