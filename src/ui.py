@@ -5,6 +5,7 @@ from rich.table import Table
 from rich.text import Text
 from colorama import Fore, Style
 import src.config as config_module
+from src import __version__
 
 # Initialize colorama for Windows compatibility
 init(autoreset=True)
@@ -17,7 +18,7 @@ def print_banner():
     
     print(Fore.YELLOW + title)
     print(Fore.YELLOW + "----------------------------------------------------------")
-    print(Fore.WHITE + "Proxy Tester: " + Fore.WHITE + "A multi-threaded proxy testing tool  " + Fore.GREEN + "v1.00")
+    print(Fore.WHITE + "Proxy Tester: " + Fore.WHITE + "A multi-threaded proxy testing tool  " + Fore.GREEN + f"v{__version__}")
     print(Fore.YELLOW + "----------------------------------------------------------")
     print(Style.RESET_ALL)
 
