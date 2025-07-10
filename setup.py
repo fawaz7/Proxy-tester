@@ -47,11 +47,11 @@ def get_version():
     return "1.0.0"
 
 setup(
-    name="proxidize",
+    name="proxidize_pt",
     version=get_version(),
-    author="Proxidize Team",
+    author="Proxidize",
     author_email="support@proxidize.com",
-    description="A multi-threaded proxy testing tool for HTTP/SOCKS proxies",
+    description="Proxidize Proxy Tester - A multi-threaded proxy testing tool for HTTP/SOCKS proxies",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/proxidize/proxy-tester",

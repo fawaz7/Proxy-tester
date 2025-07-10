@@ -18,7 +18,7 @@ A professional, multi-threaded proxy testing tool for HTTP and SOCKS proxies wit
 ### Quick Install (Recommended)
 
 ```bash
-pip install proxidize
+pip install proxidize_pt
 ```
 
 ### From Source
