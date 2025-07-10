@@ -74,27 +74,23 @@ Once installed, you can use any of these commands:
 
 ```bash
 # Main command
-proxidize [options] <proxy_file_or_single_proxy>
-
-# Alternative commands
-proxy-tester [options] <proxy_file_or_single_proxy>
-pxt [options] <proxy_file_or_single_proxy>  # Short alias
+proxidize_pt [options] <proxy_file_or_single_proxy>
 ```
 
 ### Basic Examples
 
 ```bash
 # Test a single proxy
-proxidize "proxy.example.com:8080:username:password" --http
+proxidize_pt "proxy.example.com:8080:username:password" --http
 
 # Test proxies from a file
-proxidize data/proxies.txt --http --geo --speed-test
+proxidize_pt data/proxies.txt --http --geo --speed-test
 
 # Test SOCKS5 proxies with verbose output
-proxidize data/socks_proxies.txt --sock --geo -v
+proxidize_pt data/socks_proxies.txt --sock --geo -v
 
 # Export results to CSV
-proxidize data/proxies.txt --http --geo -o results.csv
+proxidize_pt data/proxies.txt --http --geo -o results.csv
 ```
 
 ### Command Line Options
@@ -205,12 +201,14 @@ If you encounter any issues or have questions:
 This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
 
 1. **Recommended**: Use `pipx` for application installation:
+
    ```bash
    pip install --user pipx
    pipx install proxidize_pt
    ```
 
 2. **Use virtual environment**:
+
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -224,7 +222,7 @@ This error occurs on newer Python installations (especially with Homebrew on mac
 
 #### PATH Issues
 
-If you can't run `proxidize` after installation:
+If you can't run `proxidize_pt` after installation:
 
 - **With pipx**: Run `pipx ensurepath` and restart your terminal
 - **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH

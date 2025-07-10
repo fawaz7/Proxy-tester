@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "proxidize_pt"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
     {name = "Proxidize", email = "support@proxidize.com"},
 ]
@@ -65,9 +65,7 @@ Homepage = "https://github.com/fawaz7/Proxy-tester"
 "Documentation" = "https://github.com/fawaz7/Proxy-tester/wiki"
 
 [project.scripts]
-proxidize = "src.main:main"
-proxy-tester = "src.main:main"
-pxt = "src.main:main"
+proxidize_pt = "src.main:main"
 
 [tool.setuptools]
 packages = ["src"]

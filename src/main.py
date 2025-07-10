@@ -17,15 +17,13 @@ import src.config as config_module
 shutdown_requested = False
 
 def signal_handler(signum, frame):
-    """Handle Ctrl+C gracefully with a visually appealing message"""
+    """Handle Ctrl+C with immediate exit"""
     global shutdown_requested
-    shutdown_requested = True
-    
     print_separator()
-    print_info("Proxidize received interrupt signal (Ctrl+C)")
-    print_info("Allowing current operations to complete safely...")
-    print_info("Press Ctrl+C again to force exit (not recommended)")
+    print_info("🛑 Proxidize interrupted by user (Ctrl+C)")
+    print_info("👋 Thank you for using Proxidize!")
     print_separator()
+    sys.exit(0)
 
 def check_shutdown():
     """Check if shutdown was requested and exit gracefully if needed"""

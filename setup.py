@@ -99,9 +99,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "proxidize=src.main:main",
-            "proxy-tester=src.main:main",
-            "pxt=src.main:main",  # Short alias
+            "proxidize_pt=src.main:main",
         ],
     },
     include_package_data=True,
