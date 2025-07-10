@@ -7,7 +7,6 @@
 APP_NAME = "Proxidize: Proxy Tester"
 APP_VERSION = "1.00"
 
-DEFAULT_THREAD_COUNT = 10
 REQUEST_TIMEOUT = 10  # seconds
 MAX_RETRIES = 2
 
@@ -17,7 +16,22 @@ MAX_RETRIES = 2
 
 # This endpoint returns JSON like:
 # { "ip": "1.2.3.4", "country": "US", "cc": "US" }
-IP_API_URL = "http://api.myip.com"  # You can change to ipinfo.io, ipapi.co, etc.
+IP_API_URL = "http://api.myip.com"
+
+# ==========================
+# SPEED TEST SETTINGS
+# ==========================
+
+# Test file URL for speed testing (100MB test file)
+TEST_FILE_URL = "http://speedtest.tele2.net/100MB.zip"
+SPEED_TEST_DURATION = 6  # seconds (increased for better accuracy with slower proxies)
+SPEED_TEST_CHUNK_SIZE = 1024 * 32  # 32 KB
+MIN_TEST_BYTES = 1024 * 1024  # 1 MB minimum data to download
+MAX_SPEED_TEST_TIME = 60  # seconds
+SPEED_TEST_RETRIES = 2  # number of retries for failed speed tests
+
+# Debug/Verbose mode (controlled by -v/--verbose flag)
+VERBOSE_MODE = False
 
 # ==========================
 # COLORS (OPTIONAL THEMING)

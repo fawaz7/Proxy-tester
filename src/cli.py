@@ -16,6 +16,7 @@ def parse_cli_args():
     parser.add_argument("--geo", action="store_true", help="Enable IP geolocation lookup")
     parser.add_argument("--speed-test", action="store_true", help="Include download speed test using speedtest-cli")
     parser.add_argument("-o", "--output", help="Output file path")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose debug output")
 
     return parser.parse_args()
 
@@ -45,7 +46,7 @@ def interactive_prompt(args):
         choice = input("Choose proxy type [http/socks]: ").strip().lower()
         config["type"] = "socks" if "s" in choice else "http"
 
-    # Gro-IP LookUp
+    # Geo-IP LookUp
     if args.geo:
         config["geo_lookup"] = True
     else:
@@ -53,8 +54,11 @@ def interactive_prompt(args):
         config["geo_lookup"] = geo == "y"
 
     # Speed test
-    speed = input("Include download speed test? [y/N]: ").strip().lower()
-    config["speed_test"] = speed == "y"
+    if args.speed_test:
+        config["speed_test"] = True
+    else:
+        speed = input("Include download speed test? [y/N]: ").strip().lower()
+        config["speed_test"] = speed == "y"
 
     # Threads
     config["threads"] = args.threads
@@ -62,14 +66,15 @@ def interactive_prompt(args):
     # Timeout
     config["timeout"] = args.timeout
 
+    # Verbose mode
+    config["verbose"] = args.verbose
+
     # Output file
     if args.output:
         config["output_path"] = args.output
     else:
-        save = input("Save results to file? [y/N]: ").strip().lower()
-        if save == "y":
-            config["output_path"] = input("Enter output path (e.g., results.csv): ").strip()
-        else:
-            config["output_path"] = None
+        # Only ask for output file if user didn't specify -o flag
+        # This means if they didn't use -o, we assume they don't want to save to file
+        config["output_path"] = None
 
     return config

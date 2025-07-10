@@ -26,17 +26,47 @@ def load_proxies_from_file(filepath: str) -> list:
 def save_results_to_csv(results: list, filename: str = DEFAULT_RESULT_FILE):
     """
     Saves proxy test results to a CSV file inside the results folder.
+    Includes the index number as the first column, starting from 1.
     """
     if not os.path.exists(RESULTS_DIR):
         os.makedirs(RESULTS_DIR)
 
     path = os.path.join(RESULTS_DIR, filename)
+    fieldnames = ["Index", "Type", "IP", "Location", "Latency", "Speed", "Status"]
     try:
         with open(path, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=["Type", "IP", "Location", "Latency", "Speed", "Status"])
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
-            for row in results:
-                writer.writerow(row)
+            for idx, row in enumerate(results, 1):
+                filtered_row = {k: row.get(k, "") for k in fieldnames}
+                filtered_row["Index"] = row.get("original_index", idx)
+                # Ensure index is 1-based
+                if isinstance(filtered_row["Index"], int):
+                    filtered_row["Index"] = filtered_row["Index"] + 1 if filtered_row["Index"] == 0 else filtered_row["Index"]
+                writer.writerow(filtered_row)
+        print_info(f"Results saved to {path}")
+    except Exception as e:
+        print_error(f"Failed to save results: {str(e)}")
+
+
+def save_results_to_txt(results: list, filename: str):
+    """
+    Saves proxy test results to a TXT file (one proxy per line, tab-separated fields).
+    Includes the index number as the first column, starting from 1.
+    """
+    if not os.path.exists(RESULTS_DIR):
+        os.makedirs(RESULTS_DIR)
+    path = os.path.join(RESULTS_DIR, filename)
+    try:
+        with open(path, mode='w', encoding='utf-8') as file:
+            # Write header
+            file.write("Index\tType\tIP\tLocation\tLatency\tSpeed\tStatus\n")
+            for idx, row in enumerate(results, 1):
+                index = row.get("original_index", idx)
+                # Ensure index is 1-based
+                if isinstance(index, int):
+                    index = index + 1 if index == 0 else index
+                file.write(f"{index}\t{row.get('Type','')}\t{row.get('IP','')}\t{row.get('Location','')}\t{row.get('Latency','')}\t{row.get('Speed','')}\t{row.get('Status','')}\n")
         print_info(f"Results saved to {path}")
     except Exception as e:
         print_error(f"Failed to save results: {str(e)}")
@@ -54,6 +84,7 @@ def parse_proxy_line(line: str) -> dict:
     """
     Parses proxies in format: host:port:username:password
     Supports both IP and DNS-based hostnames.
+    Infers type based on port number (20002 for SOCKS5, 20000 for HTTP).
 
     Returns:
     {
@@ -61,22 +92,31 @@ def parse_proxy_line(line: str) -> dict:
         'port': 20000,
         'username': 'user',
         'password': 'pass',
-        'raw': 'original_line'
+        'raw': 'original_line',
+        'type': 'http' or 'socks5'
     }
     """
     parts = line.strip().split(":")
     
     if len(parts) != 4:
         raise ValueError(f"Invalid proxy format: {line}")
-
-    host, port, username, password = parts
-    return {
-        "host": host,
-        "port": int(port),
-        "username": username,
-        "password": password,
-        "raw": line.strip()
+        
+    proxy = {
+        'host': parts[0],
+        'port': parts[1],
+        'username': parts[2],
+        'password': parts[3],
+        'raw': line,
     }
+    
+    # Infer type based on port number
+    if parts[1] == "20002":
+        proxy['type'] = 'socks5'
+    else:
+        proxy['type'] = 'http'
+    
+    return proxy
+
 
 def get_location_from_ip(ip: str) -> str:
     """
