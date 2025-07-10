@@ -1,6 +1,0 @@
-pg.proxi.es:20000:OXRaguMeIM73ODYD:ygUKzdd11WXW3y0j
-pg.proxi.es:20000:OXRaguMefd73ODYD:ygUKzd1x1WXW3y0j
-pg.proxi.es:20000:OXRaguMyyM73ODYD:ygUKzdT32WXW3y0j
-pg.proxi.es:20000:OXRaguM34M73ODYD:ygUfddT11WXW3y0j
-pg.proxi.es:20000:OXRaguMeIM73ODYD:ygUKzdT11WXW3y0j
-pg.proxi.es:20000:OXRaguMeIM73ODYD:ygUKzdT11WXW3y0j

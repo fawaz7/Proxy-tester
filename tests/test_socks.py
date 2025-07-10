@@ -9,7 +9,8 @@ from src.ui import print_info
 def test_single_socks_proxy():
     print_info("[INFO] Running SOCKS5 proxy test...\n")
 
-    raw_proxy = "pg.proxi.es:20002:f7VPm5tW0JN1NySx-s-JgWavCRyTX:Q1GdSz9Ah4AeFYlV"
+    # Example proxy for testing (replace with real proxy for actual testing)
+    raw_proxy = "example.proxy.com:8080:username:password"
     proxy = parse_proxy_line(raw_proxy)
 
     result = test_socks_proxy(proxy)

@@ -15,7 +15,7 @@ from src.utils import (
 
 # ✅ Proxy format: host:port:username:password
 sample_proxies = [
-    "pg.proxi.es:20000:f7VPm5tW0JN1NySx-s-JgWavCRyTX:Q1GdSz9Ah4AeFYlV",
+    "example.proxy.com:8080:username:password",
     "66.42.83.203:20002:user123:pass123",
     "invalid:format:only:three",
     "missing:port:user:pass",  # port not an int

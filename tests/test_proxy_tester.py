@@ -12,8 +12,8 @@ from src.ui import print_info
 def test_single_http_proxy():
     print_info("Running HTTP proxy test...\n")
 
-    # This proxy should exist in your file or be hardcoded temporarily
-    raw_proxy = "pg.proxi.es:20000:f7VPm5tW0JN1NySx-s-JgWavCRyTX:Q1GdSz9Ah4AeFYlV"
+    # Example proxy for testing (replace with real proxy for actual testing)
+    raw_proxy = "example.proxy.com:8080:username:password"
     proxy = parse_proxy_line(raw_proxy)
 
     result = test_http_proxy(proxy)
