@@ -14,7 +14,7 @@ from src.config import (
     SPEED_TEST_CHUNK_SIZE, MIN_TEST_BYTES, MAX_SPEED_TEST_TIME,
     SPEED_TEST_RETRIES
 )
-from src.ui import print_error, print_info, print_debug
+from src.ui import print_error, print_debug
 
 def test_http_proxy(proxy: dict) -> dict:
     """Test HTTP proxy connectivity only (fast check)"""

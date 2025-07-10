@@ -9,8 +9,6 @@ def parse_cli_args():
     )
 
     parser.add_argument("proxy", nargs="?", help="Single proxy or path to proxy list file")
-    parser.add_argument("-t", "--threads", type=int, default=10, help="Number of threads (default: 10)")
-    parser.add_argument("-T", "--timeout", type=int, default=30, help="Request timeout in seconds (default: 30)")
     parser.add_argument("--sock", action="store_true", help="Use SOCKS5 proxy")
     parser.add_argument("--http", action="store_true", help="Use HTTP proxy")
     parser.add_argument("--geo", action="store_true", help="Enable IP geolocation lookup")
@@ -59,12 +57,6 @@ def interactive_prompt(args):
     else:
         speed = input("Include download speed test? [y/N]: ").strip().lower()
         config["speed_test"] = speed == "y"
-
-    # Threads
-    config["threads"] = args.threads
-
-    # Timeout
-    config["timeout"] = args.timeout
 
     # Verbose mode
     config["verbose"] = args.verbose

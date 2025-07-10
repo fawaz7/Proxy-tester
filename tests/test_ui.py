@@ -1,4 +1,8 @@
-from ui import print_banner, print_info, print_success, print_warning, print_error, display_result_table
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.ui import print_banner, print_info, print_success, print_warning, print_error, display_result_table
 
 print_banner()
 print_info("Loading proxies...")
