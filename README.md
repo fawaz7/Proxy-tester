@@ -15,24 +15,53 @@ A professional, multi-threaded proxy testing tool for HTTP and SOCKS proxies wit
 
 ## Installation
 
-### Quick Install (Recommended)
+### Option 1: Using pipx (Recommended for applications)
 
 ```bash
+# Install pipx if you don't have it
+pip install --user pipx
+pipx ensurepath
+
+# Install proxidize_pt
+pipx install proxidize_pt
+```
+
+### Option 2: Using pip with virtual environment
+
+```bash
+# Create a virtual environment
+python3 -m venv proxy_tester_env
+source proxy_tester_env/bin/activate  # On Windows: proxy_tester_env\Scripts\activate
+
+# Install the package
 pip install proxidize_pt
+```
+
+### Option 3: Using pip with user flag
+
+```bash
+pip install --user proxidize_pt
+```
+
+### Option 4: System-wide installation (not recommended)
+
+```bash
+pip install --break-system-packages proxidize_pt
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/proxidize/proxy-tester.git
-cd proxy-tester
+git clone https://github.com/fawaz7/Proxy-tester.git
+cd Proxy-tester
 pip install -e .
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/proxidize/proxy-tester.git
+git clone https://github.com/fawaz7/Proxy-tester.git
+cd Proxy-tester
 cd proxy-tester
 pip install -e ".[dev]"
 ```
@@ -168,3 +197,35 @@ If you encounter any issues or have questions:
 - Speed testing
 - Beautiful terminal UI
 - CSV export functionality
+
+### Troubleshooting Installation
+
+#### Error: "externally-managed-environment"
+
+This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
+
+1. **Recommended**: Use `pipx` for application installation:
+   ```bash
+   pip install --user pipx
+   pipx install proxidize_pt
+   ```
+
+2. **Use virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install proxidize_pt
+   ```
+
+3. **User installation**:
+   ```bash
+   pip install --user proxidize_pt
+   ```
+
+#### PATH Issues
+
+If you can't run `proxidize` after installation:
+
+- **With pipx**: Run `pipx ensurepath` and restart your terminal
+- **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH
+- **With virtual environment**: Make sure the environment is activated

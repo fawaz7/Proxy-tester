@@ -54,11 +54,11 @@ setup(
     description="Proxidize Proxy Tester - A multi-threaded proxy testing tool for HTTP/SOCKS proxies",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/proxidize/proxy-tester",
+    url="https://github.com/fawaz7/Proxy-tester",
     project_urls={
-        "Bug Reports": "https://github.com/proxidize/proxy-tester/issues",
-        "Source": "https://github.com/proxidize/proxy-tester",
-        "Documentation": "https://github.com/proxidize/proxy-tester/wiki",
+        "Bug Reports": "https://github.com/fawaz7/Proxy-tester/issues",
+        "Source": "https://github.com/fawaz7/Proxy-tester",
+        "Documentation": "https://github.com/fawaz7/Proxy-tester/wiki",
     },
     packages=find_packages(),
     classifiers=[
