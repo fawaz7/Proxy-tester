@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "proxidize_pt"
-version = "1.0.3"
+version = "1.0.4"
 authors = [
     {name = "Proxidize", email = "support@proxidize.com"},
 ]

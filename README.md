@@ -1,6 +1,6 @@
 # Proxidize: Proxy Tester
 
-A professional, multi-threaded proxy testing tool for HTTP and SOCKS proxies with built-in speed testing and geo-location lookup.
+A professional, multi-threaded proxy testing tool for HTTP and SOCKS5 proxies with built-in speed testing and geo-location lookup.
 
 ## Features
 
@@ -11,12 +11,22 @@ A professional, multi-threaded proxy testing tool for HTTP and SOCKS proxies wit
 - 🎨 **Beautiful UI**: Rich terminal interface with colored output and formatted tables
 - 📊 **Export Results**: Save results to CSV format for analysis
 - 🛡️ **Robust Error Handling**: Graceful handling of failures and interruptions
-- 🔧 **Flexible Configuration**: Command-line options and interactive prompts
+- 🔧 **Flexible Input**: Support for single proxy, file input, or interactive proxy entry
 
 ## Installation
 
-### Option 1: Using pipx (Recommended for applications)
+### Recommended Installation
 
+#### For macOS Users:
+```bash
+# Install pipx via Homebrew (recommended)
+brew install pipx
+
+# Install proxidize_pt
+pipx install proxidize_pt
+```
+
+#### For Other Platforms:
 ```bash
 # Install pipx if you don't have it
 pip install --user pipx
@@ -26,8 +36,9 @@ pipx ensurepath
 pipx install proxidize_pt
 ```
 
-### Option 2: Using pip with virtual environment
+### Alternative Installation Methods
 
+#### Using pip with virtual environment:
 ```bash
 # Create a virtual environment
 python3 -m venv proxy_tester_env
@@ -37,32 +48,27 @@ source proxy_tester_env/bin/activate  # On Windows: proxy_tester_env\Scripts\act
 pip install proxidize_pt
 ```
 
-### Option 3: Using pip with user flag
-
+#### Using pip with user flag:
 ```bash
 pip install --user proxidize_pt
 ```
 
-### Option 4: System-wide installation (not recommended)
-
+#### System-wide installation (not recommended):
 ```bash
 pip install --break-system-packages proxidize_pt
 ```
 
-### From Source
-
+### From Source:
 ```bash
 git clone https://github.com/fawaz7/Proxy-tester.git
 cd Proxy-tester
 pip install -e .
 ```
 
-### Development Installation
-
+### Development Installation:
 ```bash
 git clone https://github.com/fawaz7/Proxy-tester.git
 cd Proxy-tester
-cd proxy-tester
 pip install -e ".[dev]"
 ```
 
@@ -70,10 +76,9 @@ pip install -e ".[dev]"
 
 ### Command Line Interface
 
-Once installed, you can use any of these commands:
+Once installed, you can use the main command:
 
 ```bash
-# Main command
 proxidize_pt [options] <proxy_file_or_single_proxy>
 ```
 
@@ -81,16 +86,19 @@ proxidize_pt [options] <proxy_file_or_single_proxy>
 
 ```bash
 # Test a single proxy
-proxidize_pt "proxy.example.com:8080:username:password" --http
+proxidize_pt --http pg.proxi.es:20000:username:password
 
-# Test proxies from a file
-proxidize_pt data/proxies.txt --http --geo --speed-test
+# Test a single SOCKS5 proxy with geo-location
+proxidize_pt --socks --geo pg.proxi.es:20002:username:password
 
-# Test SOCKS5 proxies with verbose output
-proxidize_pt data/socks_proxies.txt --sock --geo -v
+# Test proxies from a file with speed test and verbose output
+proxidize_pt --http --geo --speed-test -v proxies.txt
 
 # Export results to CSV
-proxidize_pt data/proxies.txt --http --geo -o results.csv
+proxidize_pt --http --geo proxies.txt -o results.csv
+
+# Interactive mode (no arguments)
+proxidize_pt
 ```
 
 ### Command Line Options
@@ -101,8 +109,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --sock                Use SOCKS5 proxy
-  --http                Use HTTP proxy
+  --socks               Use SOCKS5 proxy
+  --http                Use HTTP proxy  
   --geo                 Enable IP geolocation lookup
   --speed-test          Include download speed test
   -o OUTPUT, --output OUTPUT
@@ -115,20 +123,26 @@ options:
 Proxies should be in the format: `host:port:username:password`
 
 Examples:
-
 ```
 proxy.example.com:8080:user123:pass123
 192.168.1.100:3128:admin:secret
-socks.example.com:1080:sockuser:sockpass
+pg.proxi.es:20000:username:password
+pg.proxi.es:20002:username:password
 ```
 
-### Sample Proxy Files
+### Input Methods
 
-You can find sample proxy files in the `data/` directory:
+1. **Single Proxy**: Pass a proxy directly as an argument
+2. **File Input**: Create a text file with one proxy per line
+3. **Interactive Mode**: Run without arguments to enter proxies manually
 
-- `working_http_proxies.txt` - Working HTTP proxies for testing
-- `working_socks_proxies.txt` - Working SOCKS5 proxies for testing
-- `semi_working_http_proxies.txt` - Mixed HTTP proxies for testing error handling
+### Example File (proxies.txt):
+```
+proxy1.example.com:8080:user1:pass1
+proxy2.example.com:3128:user2:pass2
+pg.proxi.es:20000:username:password
+pg.proxi.es:20002:username:password
+```
 
 ## Platform Support
 
@@ -144,14 +158,6 @@ Proxidize works on all major platforms:
 - Internet connection for proxy testing
 - All dependencies are automatically installed via pip
 
-## Configuration
-
-The tool uses intelligent defaults but can be customized via:
-
-- Command-line arguments
-- Interactive prompts
-- Configuration files (coming soon)
-
 ## Output
 
 Results are displayed in a beautiful table format and can be exported to CSV:
@@ -166,6 +172,38 @@ Results are displayed in a beautiful table format and can be exported to CSV:
 └───┴────────────┴────────────────┴───────────────────────────────────┴─────────┴───────────┴─────────┘
 ```
 
+## Troubleshooting Installation
+
+### Error: "externally-managed-environment"
+
+This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
+
+1. **Recommended**: Use `pipx` for application installation:
+   ```bash
+   pip install --user pipx
+   pipx install proxidize_pt
+   ```
+
+2. **Use virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install proxidize_pt
+   ```
+
+3. **User installation**:
+   ```bash
+   pip install --user proxidize_pt
+   ```
+
+### PATH Issues
+
+If you can't run `proxidize_pt` after installation:
+
+- **With pipx**: Run `pipx ensurepath` and restart your terminal
+- **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH
+- **With virtual environment**: Make sure the environment is activated
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -178,52 +216,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 If you encounter any issues or have questions:
 
-1. Check the [documentation](https://github.com/proxidize/proxy-tester/wiki)
-2. Search [existing issues](https://github.com/proxidize/proxy-tester/issues)
-3. Create a [new issue](https://github.com/proxidize/proxy-tester/issues/new)
-
-## Changelog
-
-### v1.0.0
-
-- Initial release
-- Multi-threaded proxy testing
-- HTTP and SOCKS5 support
-- Geo-location lookup
-- Speed testing
-- Beautiful terminal UI
-- CSV export functionality
-
-### Troubleshooting Installation
-
-#### Error: "externally-managed-environment"
-
-This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
-
-1. **Recommended**: Use `pipx` for application installation:
-
-   ```bash
-   pip install --user pipx
-   pipx install proxidize_pt
-   ```
-
-2. **Use virtual environment**:
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install proxidize_pt
-   ```
-
-3. **User installation**:
-   ```bash
-   pip install --user proxidize_pt
-   ```
-
-#### PATH Issues
-
-If you can't run `proxidize_pt` after installation:
-
-- **With pipx**: Run `pipx ensurepath` and restart your terminal
-- **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH
-- **With virtual environment**: Make sure the environment is activated
+1. Check the [documentation](https://github.com/fawaz7/Proxy-tester/wiki)
+2. Search [existing issues](https://github.com/fawaz7/Proxy-tester/issues)
+3. Create a [new issue](https://github.com/fawaz7/Proxy-tester/issues/new)

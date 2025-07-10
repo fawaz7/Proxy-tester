@@ -9,7 +9,7 @@ def parse_cli_args():
     )
 
     parser.add_argument("proxy", nargs="?", help="Single proxy or path to proxy list file")
-    parser.add_argument("--sock", action="store_true", help="Use SOCKS5 proxy")
+    parser.add_argument("--socks", action="store_true", help="Use SOCKS5 proxy")
     parser.add_argument("--http", action="store_true", help="Use HTTP proxy")
     parser.add_argument("--geo", action="store_true", help="Enable IP geolocation lookup")
     parser.add_argument("--speed-test", action="store_true", help="Include download speed test using speedtest-cli")
@@ -36,7 +36,7 @@ def interactive_prompt(args):
         config["proxy_input"] = lines
 
     # Proxy type
-    if args.sock:
+    if args.socks:
         config["type"] = "socks"
     elif args.http:
         config["type"] = "http"
