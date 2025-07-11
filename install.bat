@@ -56,7 +56,7 @@ if %errorlevel% equ 0 (
     echo Usage examples:
     echo   proxidize --help
     echo   proxidize data\working_http_proxies.txt --http --geo
-    echo   proxy-tester data\working_socks_proxies.txt --sock --speed-test
+    echo   proxy-tester data\working_socks_proxies.txt --socks --speed-test
     echo   pxt "proxy.example.com:8080:user:pass" --http
     echo.
     echo For more information, see: README.md

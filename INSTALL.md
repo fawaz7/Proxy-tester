@@ -1,197 +1,211 @@
-# 🚀 INSTALLATION & SETUP GUIDE
+# Proxidize: Proxy Tester - Installation Guide
 
-This guide will help you install and set up Proxidize: Proxy Tester on Windows, Linux, and macOS.
+This guide provides detailed installation instructions for Proxidize: Proxy Tester on all platforms.
 
-## Quick Installation
+## Installation
 
-### Option 1: Automatic Setup (Recommended)
-
-#### Windows
-
-```cmd
-# Run the automated installer
-python setup_and_test.py
-
-# Or use the batch file
-install.bat
-```
-
-#### Linux/macOS
+### Recommended Installation (macOS)
 
 ```bash
-# Run the automated installer
-python3 setup_and_test.py
+# Install pipx via Homebrew (recommended method for macOS)
+brew install pipx
 
-# Or use the shell script
-chmod +x install.sh
-./install.sh
+# Install proxidize_pt
+pipx install proxidize_pt
 ```
 
-### Option 2: Manual Installation
-
-#### All Platforms
+### Recommended Installation (All Platforms)
 
 ```bash
-# Install in development mode
+# Install pipx if you don't have it
+pip install --user pipx
+pipx ensurepath
+
+# Install proxidize_pt
+pipx install proxidize_pt
+```
+
+### Alternative Installation Methods
+
+#### Using pip with virtual environment:
+
+```bash
+# Create a virtual environment
+python3 -m venv proxy_tester_env
+source proxy_tester_env/bin/activate  # On Windows: proxy_tester_env\Scripts\activate
+
+# Install the package
+pip install proxidize_pt
+```
+
+#### Using pip with user flag:
+
+```bash
+pip install --user proxidize_pt
+```
+
+#### System-wide installation (not recommended):
+
+```bash
+pip install --break-system-packages proxidize_pt
+```
+
+### From Source:
+
+```bash
+git clone https://github.com/fawaz7/Proxy-tester.git
+cd Proxy-tester
 pip install -e .
-
-# Or install from PyPI (when published)
-pip install proxidize
 ```
 
 ## Usage
 
-After installation, you can use the tool in several ways:
+### Command Line Interface
 
-### 1. Console Commands (if PATH is configured)
-
-```bash
-# Main command
-proxidize [options] <proxy_file_or_single_proxy>
-
-# Alternative commands
-proxy-tester [options] <proxy_file_or_single_proxy>
-pxt [options] <proxy_file_or_single_proxy>
-```
-
-### 2. Python Module (Always works)
+Once installed, you can use the main command:
 
 ```bash
-# Using Python module directly
-python -m src.main [options] <proxy_file_or_single_proxy>
-
-# Examples
-python -m src.main data/working_http_proxies.txt --http --geo
-python -m src.main "proxy.example.com:8080:user:pass" --http
+proxidize_pt [options] <proxy_file_or_single_proxy>
 ```
 
-### 3. Direct Script Execution
+### Basic Examples
 
 ```bash
-# Run the main script directly
-python src/main.py [options] <proxy_file_or_single_proxy>
+# Test a single HTTP proxy
+proxidize_pt --http pg.proxi.es:20000:username:password
+
+# Test a single SOCKS5 proxy with geo-location
+proxidize_pt --socks --geo pg.proxi.es:20002:username:password
+
+# Test proxies from a file with speed test and verbose output
+proxidize_pt --http --geo --speed-test -v proxies.txt
+
+# Export results to CSV
+proxidize_pt --http --geo proxies.txt -o results.csv
+
+# Interactive mode (no arguments)
+proxidize_pt
 ```
 
-## PATH Configuration
+### Command Line Options
 
-If console commands (`proxidize`, `proxy-tester`, `pxt`) are not working, the Scripts directory is not in your PATH.
+```
+positional arguments:
+  proxy                 Single proxy or path to proxy list file
 
-### Windows
+options:
+  -h, --help            show this help message and exit
+  --socks               Use SOCKS5 proxy
+  --http                Use HTTP proxy
+  --geo                 Enable IP geolocation lookup
+  --speed-test          Include download speed test
+  -o OUTPUT, --output OUTPUT
+                        Output file path
+  -v, --verbose         Enable verbose debug output
+```
 
-1. **Find your Python Scripts directory:**
+### Proxy Format
 
-   ```cmd
-   python -c "import sys; import os; print(os.path.join(sys.prefix, 'Scripts'))"
-   ```
+Proxies should be in the format: `host:port:username:password`
 
-2. **Add to PATH:**
+Examples:
 
-   - Open System Properties → Advanced → Environment Variables
-   - Edit the `PATH` variable
-   - Add the Scripts directory path
-   - Restart your command prompt
+```
+proxy.example.com:8080:user123:pass123
+192.168.1.100:3128:admin:secret
+pg.proxi.es:20000:username:password
+pg.proxi.es:20002:username:password
+```
 
-3. **Alternative - User Scripts directory:**
-   ```cmd
-   python -c "import site; print(site.USER_BASE + r'\Scripts')"
-   ```
+### Input Methods
 
-### Linux/macOS
+1. **Single Proxy**: Pass a proxy directly as an argument (without quotes)
+2. **File Input**: Create a text file with one proxy per line
+3. **Interactive Mode**: Run without arguments to enter proxies manually
 
-1. **Find your Python Scripts directory:**
+### Example File (proxies.txt):
+
+```
+proxy1.example.com:8080:user1:pass1
+proxy2.example.com:3128:user2:pass2
+pg.proxi.es:20000:username:password
+pg.proxi.es:20002:username:password
+```
+
+## Platform Support
+
+Proxidize works on all major platforms:
+
+- ✅ **Windows** (Windows 10, 11)
+- ✅ **Linux** (Ubuntu, Debian, CentOS, etc.)
+- ✅ **macOS** (10.14+)
+
+## Requirements
+
+- Python 3.7 or higher
+- Internet connection for proxy testing
+- All dependencies are automatically installed via pip
+
+## Troubleshooting Installation
+
+### Error: "externally-managed-environment"
+
+This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
+
+1. **Recommended**: Use `pipx` for application installation:
 
    ```bash
-   python3 -c "import site; print(site.USER_BASE + '/bin')"
+   pip install --user pipx
+   pipx install proxidize_pt
    ```
 
-2. **Add to PATH (temporary):**
+2. **Use virtual environment**:
 
    ```bash
-   export PATH="$PATH:$(python3 -c 'import site; print(site.USER_BASE + "/bin")')"
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install proxidize_pt
    ```
 
-3. **Add to PATH (permanent):**
-
+3. **User installation**:
    ```bash
-   # For bash
-   echo 'export PATH="$PATH:$(python3 -c "import site; print(site.USER_BASE + \"/bin\")")"' >> ~/.bashrc
-   source ~/.bashrc
-
-   # For zsh
-   echo 'export PATH="$PATH:$(python3 -c "import site; print(site.USER_BASE + \"/bin\")")"' >> ~/.zshrc
-   source ~/.zshrc
+   pip install --user proxidize_pt
    ```
 
-## Verification
+### PATH Issues
+
+If you can't run `proxidize_pt` after installation:
+
+- **With pipx**: Run `pipx ensurepath` and restart your terminal
+- **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH
+- **With virtual environment**: Make sure the environment is activated
+
+### Common Installation Issues
+
+1. **"proxidize_pt command not found"**
+
+   - Solution: Check PATH configuration or use `python -m proxidize_pt` instead
+
+2. **Permission errors during installation**
+
+   - Solution: Use `--user` flag or virtual environment instead of system-wide installation
+
+3. **Import errors**
+   - Solution: Ensure all dependencies are installed; try reinstalling with `pip install --force-reinstall proxidize_pt`
+
+### Verification
 
 Test your installation:
 
 ```bash
-# Test console commands (if PATH is configured)
-proxidize --help
-proxy-tester --help
-pxt --help
+# Check version
+proxidize_pt --help
 
-# Test Python module (always works)
-python -m src.main --help
+# Test with a single proxy
+proxidize_pt --http --geo proxy.example.com:8080:user:pass
 
-# Test with sample data
-python -m src.main data/working_http_proxies.txt --http --geo -v
-```
-
-## Example Usage
-
-```bash
-# Test HTTP proxies with geo-location lookup
-proxidize data/working_http_proxies.txt --http --geo
-
-# Test SOCKS5 proxies with speed test
-proxidize data/working_socks_proxies.txt --sock --speed-test
-
-# Test single proxy
-proxidize "proxy.example.com:8080:username:password" --http
-
-# Verbose output with CSV export
-proxidize data/proxies.txt --http --geo --speed-test -v -o results.csv
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"proxidize command not found"**
-
-   - Solution: Use `python -m src.main` instead, or configure PATH
-
-2. **"No module named 'src'"**
-
-   - Solution: Run from the project directory, or reinstall with `pip install -e .`
-
-3. **Permission errors during installation**
-
-   - Solution: Use `pip install --user -e .` for user installation
-
-4. **Import errors**
-   - Solution: Install dependencies with `pip install -r requirements.txt`
-
-### Getting Help
-
-- Check `python -m src.main --help` for usage information
-- Review the main README.md for detailed documentation
-- Run `python setup_and_test.py` to verify installation
-
-## Building for Distribution
-
-```bash
-# Install build tools
-pip install build twine wheel
-
-# Build package
-python -m build
-
-# The built packages will be in dist/
-# - proxidize-1.0.0.tar.gz (source distribution)
-# - proxidize-1.0.0-py3-none-any.whl (wheel)
+# Test interactive mode
+proxidize_pt
 ```
 
 ## Platform-Specific Notes
@@ -199,20 +213,20 @@ python -m build
 ### Windows
 
 - Requires Python 3.7+ with pip
-- Scripts are installed in `%USERPROFILE%\AppData\Roaming\Python\Python3X\Scripts`
-- Consider using PowerShell for better command support
+- Use PowerShell or Command Prompt
+- PATH: `%APPDATA%\Python\Scripts` (for --user installations)
 
 ### Linux
 
 - Requires Python 3.7+ with pip
-- Scripts are installed in `~/.local/bin`
+- PATH: `~/.local/bin` (for --user installations)
 - May need to install `python3-pip` on some distributions
 
 ### macOS
 
 - Requires Python 3.7+ with pip
-- Scripts are installed in `~/Library/Python/3.X/bin`
-- Consider using Homebrew Python for easier PATH management
+- PATH: `~/Library/Python/3.X/bin` (for --user installations)
+- Homebrew + pipx is the recommended installation method
 
 ---
 

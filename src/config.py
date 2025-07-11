@@ -1,11 +1,13 @@
 # config.py
 
 # ==========================
-# GENERAL SETTINGS
+# GENERAL SETTINGS  
 # ==========================
 
+from src import __version__
+
 APP_NAME = "Proxidize: Proxy Tester"
-APP_VERSION = "1.00"
+APP_VERSION = __version__
 
 REQUEST_TIMEOUT = 10  # seconds
 MAX_RETRIES = 2

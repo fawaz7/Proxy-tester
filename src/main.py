@@ -20,8 +20,8 @@ def signal_handler(signum, frame):
     """Handle Ctrl+C with immediate exit"""
     global shutdown_requested
     print_separator()
-    print_info("🛑 Proxidize interrupted by user (Ctrl+C)")
-    print_info("👋 Thank you for using Proxidize!")
+    print_info("Process interrupted by user")
+    print_info("👋 Thank you for using Proxidize: Proxy Tester!")
     print_separator()
     sys.exit(0)
 

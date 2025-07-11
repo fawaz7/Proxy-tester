@@ -15,18 +15,18 @@ A professional, multi-threaded proxy testing tool for HTTP and SOCKS5 proxies wi
 
 ## Installation
 
-### Recommended Installation
+### Recommended Installation (macOS)
 
-#### For macOS Users:
 ```bash
-# Install pipx via Homebrew (recommended)
+# Install pipx via Homebrew (recommended method for macOS)
 brew install pipx
 
 # Install proxidize_pt
 pipx install proxidize_pt
 ```
 
-#### For Other Platforms:
+### Recommended Installation (All Platforms)
+
 ```bash
 # Install pipx if you don't have it
 pip install --user pipx
@@ -39,6 +39,7 @@ pipx install proxidize_pt
 ### Alternative Installation Methods
 
 #### Using pip with virtual environment:
+
 ```bash
 # Create a virtual environment
 python3 -m venv proxy_tester_env
@@ -49,27 +50,23 @@ pip install proxidize_pt
 ```
 
 #### Using pip with user flag:
+
 ```bash
 pip install --user proxidize_pt
 ```
 
 #### System-wide installation (not recommended):
+
 ```bash
 pip install --break-system-packages proxidize_pt
 ```
 
 ### From Source:
+
 ```bash
 git clone https://github.com/fawaz7/Proxy-tester.git
 cd Proxy-tester
 pip install -e .
-```
-
-### Development Installation:
-```bash
-git clone https://github.com/fawaz7/Proxy-tester.git
-cd Proxy-tester
-pip install -e ".[dev]"
 ```
 
 ## Usage
@@ -85,7 +82,7 @@ proxidize_pt [options] <proxy_file_or_single_proxy>
 ### Basic Examples
 
 ```bash
-# Test a single proxy
+# Test a single HTTP proxy
 proxidize_pt --http pg.proxi.es:20000:username:password
 
 # Test a single SOCKS5 proxy with geo-location
@@ -110,7 +107,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --socks               Use SOCKS5 proxy
-  --http                Use HTTP proxy  
+  --http                Use HTTP proxy
   --geo                 Enable IP geolocation lookup
   --speed-test          Include download speed test
   -o OUTPUT, --output OUTPUT
@@ -123,6 +120,7 @@ options:
 Proxies should be in the format: `host:port:username:password`
 
 Examples:
+
 ```
 proxy.example.com:8080:user123:pass123
 192.168.1.100:3128:admin:secret
@@ -132,11 +130,12 @@ pg.proxi.es:20002:username:password
 
 ### Input Methods
 
-1. **Single Proxy**: Pass a proxy directly as an argument
+1. **Single Proxy**: Pass a proxy directly as an argument (without quotes)
 2. **File Input**: Create a text file with one proxy per line
 3. **Interactive Mode**: Run without arguments to enter proxies manually
 
 ### Example File (proxies.txt):
+
 ```
 proxy1.example.com:8080:user1:pass1
 proxy2.example.com:3128:user2:pass2
@@ -179,12 +178,14 @@ Results are displayed in a beautiful table format and can be exported to CSV:
 This error occurs on newer Python installations (especially with Homebrew on macOS). Use one of these solutions:
 
 1. **Recommended**: Use `pipx` for application installation:
+
    ```bash
    pip install --user pipx
    pipx install proxidize_pt
    ```
 
 2. **Use virtual environment**:
+
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -197,6 +198,28 @@ This error occurs on newer Python installations (especially with Homebrew on mac
    ```
 
 ### PATH Issues
+
+If you can't run `proxidize_pt` after installation:
+
+- **With pipx**: Run `pipx ensurepath` and restart your terminal
+- **With --user**: Add `~/.local/bin` (Linux/Mac) or `%APPDATA%\Python\Scripts` (Windows) to your PATH
+- **With virtual environment**: Make sure the environment is activated
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+If you encounter any issues or have questions:
+
+1. Check the [documentation](https://github.com/fawaz7/Proxy-tester/wiki)
+2. Search [existing issues](https://github.com/fawaz7/Proxy-tester/issues)
+3. Create a [new issue](https://github.com/fawaz7/Proxy-tester/issues/new)
 
 If you can't run `proxidize_pt` after installation:
 
