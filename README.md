@@ -1,15 +1,6 @@
 # Proxidize: Proxy Tester
 
-A professional, multi-threaded proxy testing tool for HTTP and S# Export results to TXT format (default)
-proxidize_pt --http --geo proxies.txt -o results.txt
-
-# Export results to CSV format
-
-proxidize_pt --http --geo proxies.txt -o results.csv
-
-# Without specifying extension (defaults to TXT)
-
-proxidize_pt --http --geo proxies.txt -o resultsoxies with built-in speed testing and geo-location lookup.
+A professional, multi-threaded proxy testing tool for HTTP and SOCKS5 proxies with built-in speed testing and geo-location lookup.
 
 ## Features
 
