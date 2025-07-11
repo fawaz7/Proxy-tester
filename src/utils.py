@@ -1,7 +1,6 @@
 import os
 import csv
 import requests
-from src.config import RESULTS_DIR, DEFAULT_RESULT_FILE
 from src.ui import print_info, print_warning, print_error
 
 
@@ -21,55 +20,6 @@ def load_proxies_from_file(filepath: str) -> list:
     except FileNotFoundError:
         print_error(f"Proxy file not found: {filepath}")
     return proxies
-
-
-def save_results_to_csv(results: list, filename: str = DEFAULT_RESULT_FILE):
-    """
-    Saves proxy test results to a CSV file inside the results folder.
-    Includes the index number as the first column, starting from 1.
-    """
-    if not os.path.exists(RESULTS_DIR):
-        os.makedirs(RESULTS_DIR)
-
-    path = os.path.join(RESULTS_DIR, filename)
-    fieldnames = ["Index", "Type", "IP", "Location", "Latency", "Speed", "Status"]
-    try:
-        with open(path, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
-            for idx, row in enumerate(results, 1):
-                filtered_row = {k: row.get(k, "") for k in fieldnames}
-                filtered_row["Index"] = row.get("original_index", idx)
-                # Ensure index is 1-based
-                if isinstance(filtered_row["Index"], int):
-                    filtered_row["Index"] = filtered_row["Index"] + 1 if filtered_row["Index"] == 0 else filtered_row["Index"]
-                writer.writerow(filtered_row)
-        print_info(f"Results saved to {path}")
-    except Exception as e:
-        print_error(f"Failed to save results: {str(e)}")
-
-
-def save_results_to_txt(results: list, filename: str):
-    """
-    Saves proxy test results to a TXT file (one proxy per line, tab-separated fields).
-    Includes the index number as the first column, starting from 1.
-    """
-    if not os.path.exists(RESULTS_DIR):
-        os.makedirs(RESULTS_DIR)
-    path = os.path.join(RESULTS_DIR, filename)
-    try:
-        with open(path, mode='w', encoding='utf-8') as file:
-            # Write header
-            file.write("Index\tType\tIP\tLocation\tLatency\tSpeed\tStatus\n")
-            for idx, row in enumerate(results, 1):
-                index = row.get("original_index", idx)
-                # Ensure index is 1-based
-                if isinstance(index, int):
-                    index = index + 1 if index == 0 else index
-                file.write(f"{index}\t{row.get('Type','')}\t{row.get('IP','')}\t{row.get('Location','')}\t{row.get('Latency','')}\t{row.get('Speed','')}\t{row.get('Status','')}\n")
-        print_info(f"Results saved to {path}")
-    except Exception as e:
-        print_error(f"Failed to save results: {str(e)}")
 
 
 def format_latency(seconds: float) -> str:
@@ -162,5 +112,66 @@ def get_location_from_ip(ip: str) -> str:
         print_warning(f"[GEO] ipwho.is exception → {e}")
 
     return "N/A"
+
+
+def save_results_to_file(results: list, filepath: str):
+    """
+    Saves proxy test results to a file based on the extension.
+    Supports .csv and .txt formats.
+    Saves directly to the specified path without creating data folders.
+    Defaults to .txt format if no extension is specified.
+    """
+    # Determine format based on file extension
+    file_ext = os.path.splitext(filepath)[1].lower()
+    
+    if file_ext == '.csv':
+        save_results_as_csv(results, filepath)
+    elif file_ext == '.txt':
+        save_results_as_txt(results, filepath)
+    else:
+        # Default to TXT if no extension or unknown extension
+        if not file_ext:
+            filepath += '.txt'
+        save_results_as_txt(results, filepath)
+
+
+def save_results_as_csv(results: list, filepath: str):
+    """
+    Saves proxy test results to a CSV file at the specified path.
+    """
+    fieldnames = ["Index", "Type", "IP", "Location", "Latency", "Speed", "Status"]
+    try:
+        with open(filepath, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for idx, row in enumerate(results, 1):
+                filtered_row = {k: row.get(k, "") for k in fieldnames}
+                filtered_row["Index"] = row.get("original_index", idx)
+                # Ensure index is 1-based
+                if isinstance(filtered_row["Index"], int):
+                    filtered_row["Index"] = filtered_row["Index"] + 1 if filtered_row["Index"] == 0 else filtered_row["Index"]
+                writer.writerow(filtered_row)
+        print_info(f"Results saved to {filepath}")
+    except Exception as e:
+        print_error(f"Failed to save results: {str(e)}")
+
+
+def save_results_as_txt(results: list, filepath: str):
+    """
+    Saves proxy test results to a TXT file at the specified path.
+    """
+    try:
+        with open(filepath, mode='w', encoding='utf-8') as file:
+            # Write header
+            file.write("Index\tType\tIP\tLocation\tLatency\tSpeed\tStatus\n")
+            for idx, row in enumerate(results, 1):
+                index = row.get("original_index", idx)
+                # Ensure index is 1-based
+                if isinstance(index, int):
+                    index = index + 1 if index == 0 else index
+                file.write(f"{index}\t{row.get('Type','')}\t{row.get('IP','')}\t{row.get('Location','')}\t{row.get('Latency','')}\t{row.get('Speed','')}\t{row.get('Status','')}\n")
+        print_info(f"Results saved to {filepath}")
+    except Exception as e:
+        print_error(f"Failed to save results: {str(e)}")
 
 

@@ -80,8 +80,11 @@ proxidize_pt --socks --geo pg.proxi.es:20002:username:password
 # Test proxies from a file with speed test and verbose output
 proxidize_pt --http --geo --speed-test -v proxies.txt
 
-# Export results to CSV
+# Export results to CSV format
 proxidize_pt --http --geo proxies.txt -o results.csv
+
+# Export results to TXT format
+proxidize_pt --http --geo proxies.txt -o results.txt
 
 # Interactive mode (no arguments)
 proxidize_pt
@@ -98,6 +101,10 @@ options:
   --socks               Use SOCKS5 proxy
   --http                Use HTTP proxy
   --geo                 Enable IP geolocation lookup
+  --speed-test          Include download speed test
+  -o OUTPUT, --output OUTPUT
+                        Output file path (supports .csv and .txt formats)
+  -v, --verbose         Enable verbose debug output
   --speed-test          Include download speed test
   -o OUTPUT, --output OUTPUT
                         Output file path

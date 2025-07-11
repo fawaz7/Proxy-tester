@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.cli import parse_cli_args, interactive_prompt
-from src.utils import load_proxies_from_file, parse_proxy_line, save_results_to_csv
+from src.utils import load_proxies_from_file, parse_proxy_line, save_results_to_file
 from src.proxy_tester import test_http_proxy, test_socks_proxy, run_speed_test, run_geo_lookup
 from src.ui import print_banner, print_info, print_result, display_result_table, print_error, print_success, print_warning, print_debug, print_separator
 import src.config as config_module
@@ -237,11 +237,29 @@ def main():
     else:
         print_warning("No results to display")
     
+    # Ask for output file if not specified via -o flag
+    if user_config.get("ask_for_output") and valid_results:
+        print_separator()
+        save_choice = input("Save results to file? [y/N]: ").strip().lower()
+        if save_choice == "y":
+            output_file = input("Enter output filename (e.g., results.txt or results.csv): ").strip()
+            if output_file:
+                # Add .txt extension if no extension provided
+                if not os.path.splitext(output_file)[1]:
+                    output_file += '.txt'
+                user_config["output_path"] = output_file
+    
     # Save results to file if requested
     if user_config.get("output_path") and valid_results:
         try:
-            save_results_to_csv(valid_results, user_config["output_path"])
-            print_success(f"Results saved to: {user_config['output_path']}")
+            # Get the actual filepath that will be used (with extension added if needed)
+            output_path = user_config["output_path"]
+            file_ext = os.path.splitext(output_path)[1].lower()
+            if not file_ext:
+                output_path += '.txt'
+            
+            save_results_to_file(valid_results, user_config["output_path"])
+            print_success(f"Results saved to: {output_path}")
         except Exception as e:
             print_error(f"Failed to save results: {str(e)}")
     elif user_config.get("output_path"):

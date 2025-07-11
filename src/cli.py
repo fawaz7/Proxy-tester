@@ -13,26 +13,30 @@ def parse_cli_args():
     parser.add_argument("--http", action="store_true", help="Use HTTP proxy")
     parser.add_argument("--geo", action="store_true", help="Enable IP geolocation lookup")
     parser.add_argument("--speed-test", action="store_true", help="Include download speed test using speedtest-cli")
-    parser.add_argument("-o", "--output", help="Output file path")
+    parser.add_argument("-o", "--output", help="Output file path - specify format with extension (.txt default, .csv available)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose debug output")
 
     return parser.parse_args()
 
 def interactive_prompt(args):
-    config = {}
-
-    # Proxy source
+    config = {}    # Proxy source
     if args.proxy:
         config["proxy_input"] = args.proxy
     else:
         print("Enter proxies (one per line, then press Enter on an empty line to finish):")
+        print("(You can use cursor keys to edit each line)")
         lines = []
+        proxy_count = 1
         while True:
-            line = input().strip()
-            if not line:
+            try:
+                line = input(f"{proxy_count}. ").strip()
+                if not line:
+                    break
+                lines.append(line)
+                proxy_count += 1
+            except (EOFError, KeyboardInterrupt):
                 break
-            lines.append(line)
-
+        
         config["proxy_input"] = lines
 
     # Proxy type
@@ -44,29 +48,30 @@ def interactive_prompt(args):
         choice = input("Choose proxy type [http/socks]: ").strip().lower()
         config["type"] = "socks" if "s" in choice else "http"
 
-    # Geo-IP LookUp
+    # Geo-IP LookUp - only ask if not already specified
     if args.geo:
         config["geo_lookup"] = True
     else:
+        # Only ask if --geo flag was not provided
         geo = input("Enable Geo-IP lookup? [y/N]: ").strip().lower()
         config["geo_lookup"] = geo == "y"
 
-    # Speed test
+    # Speed test - only ask if not already specified  
     if args.speed_test:
         config["speed_test"] = True
     else:
+        # Only ask if --speed-test flag was not provided
         speed = input("Include download speed test? [y/N]: ").strip().lower()
         config["speed_test"] = speed == "y"
 
     # Verbose mode
     config["verbose"] = args.verbose
 
-    # Output file
+    # Output file - don't ask here, we'll ask after results are shown
     if args.output:
         config["output_path"] = args.output
     else:
-        # Only ask for output file if user didn't specify -o flag
-        # This means if they didn't use -o, we assume they don't want to save to file
         config["output_path"] = None
+        config["ask_for_output"] = True  # Flag to ask later
 
     return config

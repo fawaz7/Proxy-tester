@@ -1,6 +1,15 @@
 # Proxidize: Proxy Tester
 
-A professional, multi-threaded proxy testing tool for HTTP and SOCKS5 proxies with built-in speed testing and geo-location lookup.
+A professional, multi-threaded proxy testing tool for HTTP and S# Export results to TXT format (default)
+proxidize_pt --http --geo proxies.txt -o results.txt
+
+# Export results to CSV format
+
+proxidize_pt --http --geo proxies.txt -o results.csv
+
+# Without specifying extension (defaults to TXT)
+
+proxidize_pt --http --geo proxies.txt -o resultsoxies with built-in speed testing and geo-location lookup.
 
 ## Features
 
@@ -91,8 +100,14 @@ proxidize_pt --socks --geo pg.proxi.es:20002:username:password
 # Test proxies from a file with speed test and verbose output
 proxidize_pt --http --geo --speed-test -v proxies.txt
 
-# Export results to CSV
+# Export results to CSV format
 proxidize_pt --http --geo proxies.txt -o results.csv
+
+# Export results to TXT format
+proxidize_pt --http --geo proxies.txt -o results.txt
+
+# Without specifying extension (defaults to CSV)
+proxidize_pt --http --geo proxies.txt -o results
 
 # Interactive mode (no arguments)
 proxidize_pt
@@ -111,9 +126,18 @@ options:
   --geo                 Enable IP geolocation lookup
   --speed-test          Include download speed test
   -o OUTPUT, --output OUTPUT
-                        Output file path
+                        Output file path - specify format with extension (.txt default, .csv available)
   -v, --verbose         Enable verbose debug output
 ```
+
+### Output Formats
+
+Results can be saved in two formats by specifying the file extension:
+
+- **TXT format**: Use `.txt` extension (e.g., `results.txt`) - Tab-separated values, human-readable plain text format (default)
+- **CSV format**: Use `.csv` extension (e.g., `results.csv`) - Comma-separated values, ideal for spreadsheet applications and data analysis
+
+The output format is automatically determined by the file extension you provide. If no extension is specified, TXT format is used by default.
 
 ### Proxy Format
 
@@ -132,7 +156,7 @@ pg.proxi.es:20002:username:password
 
 1. **Single Proxy**: Pass a proxy directly as an argument (without quotes)
 2. **File Input**: Create a text file with one proxy per line
-3. **Interactive Mode**: Run without arguments to enter proxies manually
+3. **Interactive Mode**: Run without arguments to enter proxies manually. After testing, you'll be prompted to save results in TXT format by default (or CSV if you specify .csv extension).
 
 ### Example File (proxies.txt):
 
