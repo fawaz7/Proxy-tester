@@ -27,11 +27,10 @@ def interactive_prompt(args):
         print("Enter proxies (one per line, then press Enter on an empty line to finish):")
         print("(You can paste multiple lines at once or enter them one by one)")
         lines = []
-        proxy_count = 1
         
         while True:
             try:
-                user_input = input(f"{proxy_count}. ").strip()
+                user_input = input().strip()
                 if not user_input:
                     break
                 
@@ -45,11 +44,8 @@ def interactive_prompt(args):
                     for line in pasted_lines:
                         if line:
                             lines.append(line)
-                            print(f"    Added proxy {proxy_count}: {line}")
-                            proxy_count += 1
                 else:
                     lines.append(user_input)
-                    proxy_count += 1
                     
             except (EOFError, KeyboardInterrupt):
                 print()  # New line for clean output
