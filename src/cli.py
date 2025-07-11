@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 
 def parse_cli_args():
     parser = argparse.ArgumentParser(
@@ -24,19 +25,38 @@ def interactive_prompt(args):
         config["proxy_input"] = args.proxy
     else:
         print("Enter proxies (one per line, then press Enter on an empty line to finish):")
-        print("(You can use cursor keys to edit each line)")
+        print("(You can paste multiple lines at once or enter them one by one)")
         lines = []
         proxy_count = 1
+        
         while True:
             try:
-                line = input(f"{proxy_count}. ").strip()
-                if not line:
+                user_input = input(f"{proxy_count}. ").strip()
+                if not user_input:
                     break
-                lines.append(line)
-                proxy_count += 1
+                
+                # Check if user pasted multiple lines (common when copying from clipboard)
+                # This handles cases where newlines are present in the input
+                if '\n' in user_input or '\r' in user_input:
+                    # Split on both types of newlines and filter empty lines
+                    pasted_lines = re.split(r'[\r\n]+', user_input)
+                    pasted_lines = [line.strip() for line in pasted_lines if line.strip()]
+                    
+                    for line in pasted_lines:
+                        if line:
+                            lines.append(line)
+                            print(f"    Added proxy {proxy_count}: {line}")
+                            proxy_count += 1
+                else:
+                    lines.append(user_input)
+                    proxy_count += 1
+                    
             except (EOFError, KeyboardInterrupt):
+                print()  # New line for clean output
                 break
         
+        if lines:
+            print(f"Total proxies entered: {len(lines)}")
         config["proxy_input"] = lines
 
     # Proxy type

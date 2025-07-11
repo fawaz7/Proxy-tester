@@ -1,6 +1,7 @@
 import sys
 import os
 import signal
+import atexit
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import math
 from typing import List, Dict, Any
@@ -15,21 +16,40 @@ import src.config as config_module
 
 # Global flag for graceful shutdown
 shutdown_requested = False
+active_executors = []
+
+def cleanup_and_exit():
+    """Clean up resources and exit immediately"""
+    global active_executors
+    try:
+        # Shutdown all active thread executors
+        for executor in active_executors:
+            if executor:
+                executor.shutdown(wait=False, cancel_futures=True)
+        active_executors.clear()
+    except:
+        pass
+    # Force exit without waiting for threads
+    os._exit(0)
 
 def signal_handler(signum, frame):
     """Handle Ctrl+C with immediate exit"""
     global shutdown_requested
+    if shutdown_requested:
+        # If already shutting down, force exit immediately
+        os._exit(0)
+    
+    shutdown_requested = True
     print_separator()
     print_info("Process interrupted by user")
     print_info("👋 Thank you for using Proxidize: Proxy Tester!")
     print_separator()
-    sys.exit(0)
+    cleanup_and_exit()
 
 def check_shutdown():
     """Check if shutdown was requested and exit gracefully if needed"""
     if shutdown_requested:
-        print_success("Thank you for using our tool!")
-        sys.exit(0)
+        cleanup_and_exit()
 
 def calculate_optimal_threads(proxy_count: int, base_threads: int = 8, max_threads: int = 64) -> int:
     """Calculate optimal thread count based on proxy count."""
@@ -41,6 +61,7 @@ def calculate_optimal_threads(proxy_count: int, base_threads: int = 8, max_threa
 
 def initial_proxy_check(proxies: List[Dict[str, Any]], user_config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Perform initial fast connectivity check only"""
+    global active_executors
     test_func = test_socks_proxy if user_config["type"] == "socks" else test_http_proxy
     thread_count = calculate_optimal_threads(len(proxies))
     print_separator()
@@ -50,33 +71,37 @@ def initial_proxy_check(proxies: List[Dict[str, Any]], user_config: Dict[str, An
     
     results = [None] * len(proxies)
     with ThreadPoolExecutor(max_workers=thread_count) as executor:
-        future_to_index = {
-            executor.submit(test_func, proxy): i 
-            for i, proxy in enumerate(proxies)
-        }
-        
-        for future in as_completed(future_to_index):
-            # Check for shutdown request
-            check_shutdown()
+        active_executors.append(executor)
+        try:
+            future_to_index = {
+                executor.submit(test_func, proxy): i 
+                for i, proxy in enumerate(proxies)
+            }
             
-            idx = future_to_index[future]
-            proxy = proxies[idx]
-            try:
-                result = future.result()
-                # Pass show_location=False for initial check
-                print_result(result, show_location=False)
-                results[idx] = result
-            except Exception as e:
-                print_error(f"[THREAD FAIL] {proxy['raw']} → {str(e)}")
-                results[idx] = {
-                    "Type": user_config["type"].upper(),
-                    "IP": "N/A",
-                    "Location": "N/A",
-                    "Latency": "N/A",
-                    "Speed": "N/A",
-                    "Status": "Failed",
-                    "Error": str(e)
-                }
+            for future in as_completed(future_to_index):
+                # Check for shutdown request
+                check_shutdown()
+                
+                idx = future_to_index[future]
+                proxy = proxies[idx]
+                try:
+                    result = future.result()
+                    # Pass show_location=False for initial check
+                    print_result(result, show_location=False)
+                    results[idx] = result
+                except Exception as e:
+                    print_error(f"[THREAD FAIL] {proxy['raw']} → {str(e)}")
+                    results[idx] = {
+                        "Type": user_config["type"].upper(),
+                        "IP": "N/A",
+                        "Location": "N/A",
+                        "Latency": "N/A",
+                        "Speed": "N/A",
+                        "Status": "Failed",
+                        "Error": str(e)
+                    }
+        finally:
+            active_executors.remove(executor) if executor in active_executors else None
     
     working_count = sum(1 for r in results if r and r["Status"] == "Working")
     print()
@@ -86,6 +111,7 @@ def initial_proxy_check(proxies: List[Dict[str, Any]], user_config: Dict[str, An
 
 def perform_additional_checks(working_proxies: List[Dict[str, Any]], user_config: Dict[str, Any]) -> None:
     """Perform optional additional checks (geo-IP and speed tests)"""
+    global active_executors
     if not working_proxies:
         return
     
@@ -97,17 +123,21 @@ def perform_additional_checks(working_proxies: List[Dict[str, Any]], user_config
         print_debug(f"Geo-IP threads: {len(working_proxies)} proxies → {geo_threads} threads")
         
         with ThreadPoolExecutor(max_workers=geo_threads) as executor:
-            futures = [
-                executor.submit(run_geo_lookup, proxy, result)
-                for proxy, result in working_proxies
-            ]
-            for future in as_completed(futures):
-                # Check for shutdown request
-                check_shutdown()
-                try:
-                    future.result()
-                except Exception as e:
-                    print_error(f"[GEO LOOKUP ERROR] {str(e)}")
+            active_executors.append(executor)
+            try:
+                futures = [
+                    executor.submit(run_geo_lookup, proxy, result)
+                    for proxy, result in working_proxies
+                ]
+                for future in as_completed(futures):
+                    # Check for shutdown request
+                    check_shutdown()
+                    try:
+                        future.result()
+                    except Exception as e:
+                        print_error(f"[GEO LOOKUP ERROR] {str(e)}")
+            finally:
+                active_executors.remove(executor) if executor in active_executors else None
         print_success("Geo-IP lookups completed")
         print_separator()
     
@@ -120,22 +150,29 @@ def perform_additional_checks(working_proxies: List[Dict[str, Any]], user_config
         print_debug(f"Speed test config: Duration={config_module.SPEED_TEST_DURATION}s, Min data={config_module.MIN_TEST_BYTES/1024/1024:.1f}MB")
         
         with ThreadPoolExecutor(max_workers=speed_threads) as executor:
-            futures = [
-                executor.submit(run_speed_test, proxy, result)
-                for proxy, result in working_proxies
-            ]
-            for future in as_completed(futures):
-                # Check for shutdown request
-                check_shutdown()
-                try:
-                    future.result()
-                except Exception as e:
-                    print_error(f"[SPEEDTEST ERROR] {str(e)}")
+            active_executors.append(executor)
+            try:
+                futures = [
+                    executor.submit(run_speed_test, proxy, result)
+                    for proxy, result in working_proxies
+                ]
+                for future in as_completed(futures):
+                    # Check for shutdown request
+                    check_shutdown()
+                    try:
+                        future.result()
+                    except Exception as e:
+                        print_error(f"[SPEEDTEST ERROR] {str(e)}")
+            finally:
+                active_executors.remove(executor) if executor in active_executors else None
         print_success("Speed tests completed")
         print_separator()
 
 def main():
     """Main function that orchestrates the proxy testing process"""
+    # Register cleanup function for emergency exit
+    atexit.register(cleanup_and_exit)
+    
     # Register signal handler for graceful Ctrl+C handling
     # Handle both SIGINT (Ctrl+C) and SIGTERM for better cross-platform support
     signal.signal(signal.SIGINT, signal_handler)
@@ -271,12 +308,8 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         # Final fallback for any unhandled Ctrl+C
-        print_separator()
-        print_info("Proxidize was forcefully terminated")
-        print_success("Thanks for using Proxidize: Proxy Tester!")
-        print_separator()
-        sys.exit(1)
+        cleanup_and_exit()
     except Exception as e:
         print_error(f"Unexpected error occurred: {str(e)}")
         print_info("Please report this issue if it persists :)")
-        sys.exit(1)
+        cleanup_and_exit()
