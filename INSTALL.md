@@ -9,6 +9,7 @@ This guide provides detailed installation instructions for Proxidize: Proxy Test
 ```bash
 # Install pipx via Homebrew (recommended method for macOS)
 brew install pipx
+pipx ensurepath
 
 # Install proxidize_pt
 pipx install proxidize_pt
