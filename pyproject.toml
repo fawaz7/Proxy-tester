@@ -1,0 +1,117 @@
+# pyproject.toml - Modern Python packaging configuration
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fwz_pt"
+version = "1.1.0"
+authors = [
+    {name = "Fawaz Al-Ghzawi", email = "Ghazawe1@gmail.com"},
+]
+description = "A multi-threaded proxy testing tool for HTTP/SOCKS5 proxies"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8", 
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: Proxy Servers",
+    "Topic :: System :: Networking",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Utilities",
+]
+keywords = ["proxy", "testing", "http", "socks", "socks5", "network", "tool", "multi-threaded", "cloudflare", "speed-test", "validation", "rich-ui"]
+dependencies = [
+    "httpx[socks]>=0.25.0",
+    "rich>=13.0.0",
+    "requests>=2.28.0",
+    "pysocks>=1.7.1",
+    "pyfiglet>=0.8.0",
+    "colorama>=0.4.6",
+    "speedtest-cli>=2.1.3"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+]
+build = [
+    "build>=0.8.0",
+    "twine>=4.0.0",
+    "wheel>=0.37.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/fawaz7/Proxy-tester"
+"Bug Reports" = "https://github.com/fawaz7/Proxy-tester/issues"
+"Source" = "https://github.com/fawaz7/Proxy-tester"
+"Documentation" = "https://github.com/fawaz7/Proxy-tester/wiki"
+
+[project.scripts]
+fwz_pt = "src.main:main"
+
+[tool.setuptools]
+packages = ["src"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.md"]
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+    "*_test.py",
+]
+python_classes = [
+    "Test*",
+]
+python_functions = [
+    "test_*",
+]
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false

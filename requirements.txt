@@ -1,0 +1,7 @@
+httpx[socks]
+rich
+requests
+pysocks
+pyfiglet
+colorama
+speedtest-cli
