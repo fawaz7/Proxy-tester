@@ -32,8 +32,7 @@ def read_requirements():
         'requests>=2.28.0',
         'pysocks>=1.7.1',
         'pyfiglet>=0.8.0',
-        'colorama>=0.4.6',
-        'speedtest-cli>=2.1.3'
+        'colorama>=0.4.6'
     ]
 
 # Get version from src/__init__.py or use default

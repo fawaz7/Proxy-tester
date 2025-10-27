@@ -4,4 +4,3 @@ requests
 pysocks
 pyfiglet
 colorama
-speedtest-cli

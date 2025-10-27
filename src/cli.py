@@ -13,7 +13,7 @@ def parse_cli_args():
     parser.add_argument("--socks", action="store_true", help="Use SOCKS5 proxy")
     parser.add_argument("--http", action="store_true", help="Use HTTP proxy")
     parser.add_argument("--geo", action="store_true", help="Enable IP geolocation lookup")
-    parser.add_argument("--speed-test", action="store_true", help="Include download speed test using speedtest-cli")
+    parser.add_argument("--speed-test", action="store_true", help="Include download speed test (Cloudflare CDN + Fast.com fallback)")
     parser.add_argument("-o", "--output", help="Output file path - specify format with extension (.txt default, .csv available)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose debug output")
 

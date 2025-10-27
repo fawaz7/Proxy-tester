@@ -9,9 +9,7 @@ import requests
 
 from src.speedtest_helper import (
     build_requests_proxy,
-    build_urllib_proxy_url,
-    create_speedtest_with_proxy,
-    redact_proxy_credentials,
+    test_fast_com_speed,
 )
 
 from src.utils import format_latency, get_location_from_ip
@@ -149,44 +147,19 @@ def test_socks_proxy(proxy: dict) -> dict:
 
     return result
 
-def test_socks_speed_speedtest(proxy: dict) -> Optional[float]:
-    """Test SOCKS5 proxy speed using speedtest-cli (fallback method)"""
-    print_debug(f"[SPEEDTEST-CLI FALLBACK] Testing SOCKS5 proxy {proxy['raw']}")
+def test_fast_com_fallback(proxy: dict) -> Optional[float]:
+    """Test proxy speed using Fast.com (fallback method when Cloudflare fails)"""
+    print_debug(f"[FAST.COM FALLBACK] Testing proxy {proxy['raw']}")
     
     try:
-        st = create_speedtest_with_proxy(proxy, timeout=40, secure=False)
-        best_server = st.get_best_server()
-        print_debug(f"Server: {best_server['sponsor']} - {best_server['name']}")
+        speed = test_fast_com_speed(proxy, timeout=30)
         
-        # Simple single test with default threads for fallback
-        download_speed = st.download() / 1_000_000  # Convert to Mbps
-        
-        if download_speed > 0.1:
-            print_debug(f"[FALLBACK] Speedtest-cli SOCKS5: {round(download_speed, 2)} Mbps")
-            return download_speed
+        if speed and speed > 0.1:
+            print_debug(f"[FALLBACK] Fast.com: {round(speed, 2)} Mbps")
+            return speed
         return None
     except Exception as e:
-        print_debug(f"[ERROR] Speedtest-cli SOCKS5 fallback failed: {str(e)}")
-        return None
-
-def test_http_speed_speedtest(proxy: dict) -> Optional[float]:
-    """Test HTTP proxy speed using speedtest-cli (fallback method)"""
-    print_debug(f"[SPEEDTEST-CLI FALLBACK] Testing HTTP proxy {proxy['raw']}")
-    
-    try:
-        st = create_speedtest_with_proxy(proxy, timeout=40, secure=False)
-        best_server = st.get_best_server()
-        print_debug(f"Server: {best_server['sponsor']} - {best_server['name']}")
-        
-        # Simple single test with default threads for fallback
-        download_speed = st.download() / 1_000_000  # Convert to Mbps
-        
-        if download_speed > 0.1:
-            print_debug(f"[FALLBACK] Speedtest-cli HTTP: {round(download_speed, 2)} Mbps")
-            return download_speed
-        return None
-    except Exception as e:
-        print_debug(f"[ERROR] Speedtest-cli HTTP fallback failed: {str(e)}")
+        print_debug(f"[ERROR] Fast.com fallback failed: {str(e)}")
         return None
 
 def test_cloudflare_speed(proxy: dict) -> Optional[float]:
@@ -283,14 +256,10 @@ def run_speed_test(proxy: dict, result: dict) -> None:
         print_debug("Using Cloudflare speed test (accurate method)...")
         speed = test_cloudflare_speed(proxy)
         
-        # Fallback: Try speedtest-cli if Cloudflare fails
+        # Fallback: Try Fast.com if Cloudflare fails
         if speed is None or speed < 0.5:
-            print_debug("Cloudflare failed, trying speedtest-cli as fallback...")
-            
-            if proxy.get('type') == 'socks5':
-                speed = test_socks_speed_speedtest(proxy)
-            else:
-                speed = test_http_speed_speedtest(proxy)
+            print_debug("Cloudflare failed, trying Fast.com as fallback...")
+            speed = test_fast_com_fallback(proxy)
         
         if speed and speed > 0:
             result["Speed"] = f"{round(speed, 2)} Mbps"
