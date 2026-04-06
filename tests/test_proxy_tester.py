@@ -5,7 +5,7 @@ import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.proxy_tester import test_http_proxy
+from src.proxy_tester import test_http_proxy as run_http_proxy_test
 from src.utils import parse_proxy_line
 from src.ui import print_info
 
@@ -16,7 +16,7 @@ def test_single_http_proxy():
     raw_proxy = "example.proxy.com:8080:username:password"
     proxy = parse_proxy_line(raw_proxy)
 
-    result = test_http_proxy(proxy)
+    result = run_http_proxy_test(proxy)
 
     print_info(f"[{result['Status']}] {proxy['host']}:{proxy['port']}")
     print(f"  IP: {result['IP']}")

@@ -4,10 +4,10 @@ Fast, multi-threaded proxy testing from the command line.
 
 ## Features
 
-- Multi-threaded proxy ping testing
+- Multi-threaded HTTP and SOCKS5 proxy testing
+- IP-whitelisted proxy support (no credentials required)
 - Geo-location lookup
 - Sequential speed testing (Cloudflare CDN + Fast.com fallback)
-- Supports HTTP and SOCKS5 proxies
 - Export results to TXT or CSV
 
 ## Installation
@@ -44,23 +44,40 @@ fwz_pt --http proxies.txt
 fwz_pt --socks --geo --speed-test proxies.txt -o results.csv
 ```
 
+IP-whitelisted proxies (no username/password):
+
+```bash
+fwz_pt --http --ip-whitelist proxies.txt
+fwz_pt --socks --ip-whitelist 1.2.3.4:8080
+```
+
 Options:
 
-- `--http` or `--socks` - Proxy type (required)
-- `--geo` - Enable geo-location lookup
-- `--speed-test` - Run download speed test
-- `-o <file>` - Save results (.txt or .csv)
-- `--verbose` - Debug output
+| Flag | Description |
+|------|-------------|
+| `--http` | Use HTTP proxies |
+| `--socks` | Use SOCKS5 proxies |
+| `--ip-whitelist` | Accept `host:port` format (no credentials) |
+| `--geo` | Enable geo-location lookup |
+| `--speed-test` | Run download speed test |
+| `-o <file>` | Save results (`.txt` or `.csv`) |
+| `-v` / `--verbose` | Show debug output |
 
-Proxy formats:
+## Proxy formats
 
-- `host:port:user:pass`
-- `user:pass@host:port`
+Standard (with credentials):
+
+```
+host:port:username:password
+username:password@host:port
+```
+
+IP-whitelisted (with `--ip-whitelist`):
+
+```
+host:port
+```
 
 ## Contributing
 
-Feel free to contribute to the repository.
-
-```
-
-```
+Feel free to open issues or pull requests on [GitHub](https://github.com/fawaz7/Proxy-tester).

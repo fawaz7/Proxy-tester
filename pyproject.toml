@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fwz_pt"
-version = "1.1.1"
+version = "1.2.0"
 authors = [
     {name = "Fawaz Al-Ghzawi", email = "Ghazawe1@gmail.com"},
 ]
@@ -35,7 +35,6 @@ classifiers = [
 ]
 keywords = ["proxy", "testing", "http", "socks", "socks5", "network", "tool", "multi-threaded", "cloudflare", "speed-test", "validation", "rich-ui"]
 dependencies = [
-    "httpx[socks]>=0.25.0",
     "rich>=13.0.0",
     "requests>=2.28.0",
     "pysocks>=1.7.1",

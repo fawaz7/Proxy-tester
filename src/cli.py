@@ -16,6 +16,7 @@ def parse_cli_args():
     parser.add_argument("--speed-test", action="store_true", help="Include download speed test (Cloudflare CDN + Fast.com fallback)")
     parser.add_argument("-o", "--output", help="Output file path - specify format with extension (.txt default, .csv available)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose debug output")
+    parser.add_argument("--ip-whitelist", action="store_true", help="Use IP-whitelisted proxies (host:port format, no credentials)")
 
     return parser.parse_args()
 
@@ -72,6 +73,9 @@ def interactive_prompt(args):
 
     # Verbose mode
     config["verbose"] = args.verbose
+
+    # IP whitelist mode (no credentials)
+    config["ip_whitelist"] = args.ip_whitelist
 
     # Output file - only save if -o flag is provided
     if args.output:

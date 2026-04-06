@@ -297,7 +297,7 @@ def main():
     proxies = []
     for i, proxy_line in enumerate(raw_proxies):
         try:
-            parsed_proxy = parse_proxy_line(proxy_line, user_config.get("type"))
+            parsed_proxy = parse_proxy_line(proxy_line, user_config.get("type"), ip_whitelist=user_config.get("ip_whitelist", False))
             if parsed_proxy:
                 proxies.append(parsed_proxy)
             else:
@@ -374,16 +374,26 @@ def main():
             retry_results = initial_proxy_check(failed_proxies, user_config)
             
             # Update the original results with retry results
+            newly_working = []
             for (original_proxy, original_result), retry_result in zip(failed_results, retry_results):
                 # Find the index in the original results list
                 for i, result in enumerate(results):
                     if result is original_result:
                         results[i] = retry_result
                         break
-            
+                if retry_result and retry_result["Status"] == "Working":
+                    newly_working.append((original_proxy, retry_result))
+
+            # Run geo/speed checks on proxies that started working after retry
+            if newly_working and (user_config.get("geo_lookup") or user_config.get("speed_test")):
+                for proxy, _ in newly_working:
+                    proxy["speed_test"] = user_config.get("speed_test", False)
+                    proxy["geo_lookup"] = user_config.get("geo_lookup", False)
+                perform_additional_checks(newly_working, user_config)
+
             # Recalculate valid results after retry
             valid_results = [r for r in results if r]
-            
+
             # Display updated results
             print_separator()
             print_info("Displaying updated results after retry...")
@@ -415,7 +425,7 @@ def main():
             if not file_ext:
                 output_path += '.txt'
             
-            save_results_to_file(valid_results, user_config["output_path"])
+            save_results_to_file(valid_results, output_path)
             print_success(f"Results saved to: {output_path}")
         except Exception as e:
             print_error(f"Failed to save results: {str(e)}")

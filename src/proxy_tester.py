@@ -33,7 +33,10 @@ def test_http_proxy(proxy: dict) -> dict:
     }
 
     # Try requests first (more reliable), fallback to curl
-    proxy_url = f"http://{proxy['username']}:{proxy['password']}@{proxy['host']}:{proxy['port']}"
+    if proxy.get('username') and proxy.get('password'):
+        proxy_url = f"http://{proxy['username']}:{proxy['password']}@{proxy['host']}:{proxy['port']}"
+    else:
+        proxy_url = f"http://{proxy['host']}:{proxy['port']}"
     
     # Method 1: Try with requests (more reliable for proxy testing)
     try:
@@ -73,6 +76,7 @@ def test_http_proxy(proxy: dict) -> dict:
 
     print_debug(f"Fallback: Executing curl command with extended timeout")
 
+    decoded = ""
     try:
         start = time.time()
         output = subprocess.check_output(curl_cmd, stderr=subprocess.STDOUT)
@@ -114,13 +118,19 @@ def test_socks_proxy(proxy: dict) -> dict:
         "Status": "Failed"
     }
 
-    socks_proxy_url = f"socks5h://{proxy['username']}:{proxy['password']}@{proxy['host']}:{proxy['port']}"
+    if proxy.get('username') and proxy.get('password'):
+        socks_proxy_url = f"socks5h://{proxy['username']}:{proxy['password']}@{proxy['host']}:{proxy['port']}"
+    else:
+        socks_proxy_url = f"socks5h://{proxy['host']}:{proxy['port']}"
     proxies = {
         "http": socks_proxy_url,
         "https": socks_proxy_url
     }
 
-    print_debug(f"Using SOCKS5 proxy URL: socks5h://[REDACTED]@{proxy['host']}:{proxy['port']}")
+    if proxy.get('username') and proxy.get('password'):
+        print_debug(f"Using SOCKS5 proxy URL: socks5h://[REDACTED]@{proxy['host']}:{proxy['port']}")
+    else:
+        print_debug(f"Using SOCKS5 proxy URL: socks5h://{proxy['host']}:{proxy['port']}")
 
     try:
         start = time.time()
@@ -128,22 +138,61 @@ def test_socks_proxy(proxy: dict) -> dict:
         latency = time.time() - start
 
         print_debug(f"SOCKS5 response status: {response.status_code}")
-        
+
         if response.status_code == 200:
             data = response.json()
             print_debug(f"Raw API response: {response.text}")
-            
+
             result.update({
                 "IP": data.get("ip", "N/A"),
                 "Latency": format_latency(latency),
                 "Status": "Working"
             })
-            
+
             print_debug(f"SOCKS5 proxy test successful - IP: {result['IP']}, Latency: {result['Latency']}")
+            return result
 
     except Exception as e:
-        print_debug(f"SOCKS5 proxy test failed with error: {str(e)}")
-        print_error(f"[SOCKS5 FAIL] {proxy['raw']} → {e}")
+        print_debug(f"SOCKS5 requests method failed: {str(e)}")
+
+    # Fallback to curl
+    curl_cmd = [
+        "curl",
+        "-x", socks_proxy_url,
+        IP_API_URL,
+        "--max-time", "20",
+        "--connect-timeout", "15",
+        "--silent",
+        "--show-error"
+    ]
+
+    print_debug("Fallback: Executing curl command for SOCKS5 proxy")
+
+    decoded = ""
+    try:
+        start = time.time()
+        output = subprocess.check_output(curl_cmd, stderr=subprocess.STDOUT)
+        latency = time.time() - start
+
+        decoded = output.decode("utf-8").strip()
+        print_debug(f"Raw API response: {decoded}")
+        data = json.loads(decoded)
+
+        result.update({
+            "IP": data.get("ip", "N/A"),
+            "Latency": format_latency(latency),
+            "Status": "Working"
+        })
+
+        print_debug(f"SOCKS5 proxy test successful via curl - IP: {result['IP']}, Latency: {result['Latency']}")
+
+    except subprocess.CalledProcessError as e:
+        error_msg = e.output.decode('utf-8').strip()
+        print_debug(f"Curl command failed with error: {error_msg}")
+        print_error(f"[SOCKS5 FAIL] {proxy['raw']} → curl failed: {error_msg}")
+    except json.JSONDecodeError:
+        print_debug(f"Failed to parse JSON response: {decoded}")
+        print_error(f"[SOCKS5 FAIL] {proxy['raw']} → Invalid JSON response")
 
     return result
 
@@ -197,10 +246,10 @@ def test_cloudflare_speed(proxy: dict) -> Optional[float]:
                     break
             
             quick_duration = time.time() - quick_start
-            
-            # If we couldn't even download 1MB in 10 seconds, proxy is too slow
-            if quick_downloaded < 500000 or quick_duration > 10:  # Less than 500KB or took too long
-                quick_speed = (quick_downloaded * 8) / (quick_duration * 1_000_000)
+
+            # If we couldn't download at least 500KB in 10 seconds, proxy is too slow
+            if quick_downloaded < 500000:
+                quick_speed = (quick_downloaded * 8) / (quick_duration * 1_000_000) if quick_duration > 0 else 0
                 print_debug(f"[CLOUDFLARE] Quick test: {quick_speed:.2f} Mbps - proxy too slow, skipping full test")
                 return quick_speed if quick_speed > 0.1 else None
             
@@ -248,26 +297,38 @@ def test_cloudflare_speed(proxy: dict) -> Optional[float]:
 # Using Cloudflare speed test for accurate results
 
 def run_speed_test(proxy: dict, result: dict) -> None:
-    """Run speed test using Cloudflare (most accurate method)"""
+    """Run speed test using Cloudflare with Fast.com fallback."""
     try:
         print_debug(f"Starting speed test for {proxy['raw']} (type: {proxy.get('type', 'unknown')})")
-        
-        # Primary method: Cloudflare speed test (proven 94.7% accuracy)
+
+        # Primary method: Cloudflare speed test
         print_debug("Using Cloudflare speed test (accurate method)...")
-        speed = test_cloudflare_speed(proxy)
-        
-        # Fallback: Try Fast.com if Cloudflare fails
-        if speed is None or speed < 0.5:
-            print_debug("Cloudflare failed, trying Fast.com as fallback...")
-            speed = test_fast_com_fallback(proxy)
-        
+        cloudflare_speed = test_cloudflare_speed(proxy)
+
+        if cloudflare_speed and cloudflare_speed >= 0.5:
+            # Good Cloudflare result — use it directly
+            speed = cloudflare_speed
+        else:
+            # Cloudflare failed or returned a very low value — try Fast.com
+            print_debug("Cloudflare result insufficient, trying Fast.com as fallback...")
+            fast_speed = test_fast_com_fallback(proxy)
+
+            if fast_speed and fast_speed > 0:
+                speed = fast_speed
+            elif cloudflare_speed and cloudflare_speed > 0:
+                # Fast.com also failed — keep the Cloudflare result rather than reporting Error
+                print_debug("Fast.com failed, using Cloudflare result as best available")
+                speed = cloudflare_speed
+            else:
+                speed = None
+
         if speed and speed > 0:
             result["Speed"] = f"{round(speed, 2)} Mbps"
             print_debug(f"Speed test completed successfully: {result['Speed']}")
         else:
             result["Speed"] = "Error"
             print_debug("Speed test failed to get valid results")
-            
+
     except Exception as e:
         print_error(f"[SPEEDTEST FAIL] {proxy['raw']} → {e}")
         result["Speed"] = "Error"

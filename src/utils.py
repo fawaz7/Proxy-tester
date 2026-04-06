@@ -30,78 +30,85 @@ def format_latency(seconds: float) -> str:
     return f"{int(seconds * 1000)}ms"
 
 
-def parse_proxy_line(line: str, proxy_type: str = None) -> dict:
+def parse_proxy_line(line: str, proxy_type: str = None, ip_whitelist: bool = False) -> dict:
     """
     Parses proxies in two formats:
     1. host:port:username:password
     2. username:password@host:port
-    
+
+    When ip_whitelist=True, also accepts:
+    3. host:port  (no credentials)
+
     Supports both IPv4 addresses and DNS-based hostnames.
-    
+
     Args:
         line: Raw proxy string
         proxy_type: 'http' or 'socks' (from --http/--socks flag or interactive prompt)
-    
+        ip_whitelist: If True, accept host:port format without credentials
+
     Returns:
     {
         'host': 'pg.proxi.es' or '192.168.1.1',
         'port': '20000',
-        'username': 'user',
-        'password': 'pass',
+        'username': '',
+        'password': '',
         'raw': 'original_line',
         'type': 'http' or 'socks5'
     }
-    
+
     Raises:
         ValueError: If proxy format is invalid or validation fails
     """
     import re
-    
+
     line = line.strip()
     if not line:
         raise ValueError("Empty proxy line")
-    
+
     host = None
     port = None
-    username = None
-    password = None
-    
+    username = ''
+    password = ''
+
     # Format 1: username:password@host:port
     if '@' in line:
         # Split by @ to separate credentials from host:port
         parts = line.split('@')
         if len(parts) != 2:
             raise ValueError(f"Invalid proxy format (expected username:password@host:port): {line}")
-        
+
         credentials, host_port = parts
-        
+
         # Parse credentials
         cred_parts = credentials.split(':')
         if len(cred_parts) != 2:
             raise ValueError(f"Invalid credentials format (expected username:password): {credentials}")
         username, password = cred_parts
-        
+
         # Parse host:port
         host_parts = host_port.split(':')
         if len(host_parts) != 2:
             raise ValueError(f"Invalid host:port format: {host_port}")
         host, port = host_parts
-    
-    # Format 2: host:port:username:password
+
     else:
         parts = line.split(':')
-        if len(parts) != 4:
+        if ip_whitelist and len(parts) == 2:
+            # Format 3 (IP whitelist mode): host:port
+            host, port = parts
+        elif len(parts) == 4:
+            # Format 2: host:port:username:password
+            host, port, username, password = parts
+        else:
             raise ValueError(f"Invalid proxy format (expected host:port:username:password or username:password@host:port): {line}")
-        
-        host, port, username, password = parts
-    
+
     # Validation
     if not host:
         raise ValueError("Host cannot be empty")
-    
+
     if not port:
         raise ValueError("Port cannot be empty")
-    
+
     # Validate port is numeric and in valid range
     try:
         port_num = int(port)
@@ -111,12 +118,12 @@ def parse_proxy_line(line: str, proxy_type: str = None) -> dict:
         if "invalid literal" in str(e):
             raise ValueError(f"Port must be numeric, got: {port}")
         raise
-    
-    if not username:
-        raise ValueError("Username cannot be empty")
-    
-    if not password:
-        raise ValueError("Password cannot be empty")
+
+    if not ip_whitelist:
+        if not username:
+            raise ValueError("Username cannot be empty")
+        if not password:
+            raise ValueError("Password cannot be empty")
     
     # Validate IPv4 format if it looks like an IP
     if re.match(r'^\d+\.\d+\.\d+\.\d+$', host):
